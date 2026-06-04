@@ -18,6 +18,9 @@ export class AuthService {
   private currentPermisosSubject = new BehaviorSubject<string[]>(this.getStoredPermisos());
   currentPermisos$ = this.currentPermisosSubject.asObservable();
 
+  private currentTenantSubject = new BehaviorSubject<number | null>(this.getStoredTenant());
+  currentTenant$ = this.currentTenantSubject.asObservable();
+
   login(correo: string, password: string): Observable<any> {
     const formData = new FormData();
     formData.append('username', correo); // OAuth2 espera 'username', no 'Correo'
@@ -36,6 +39,10 @@ export class AuthService {
               localStorage.setItem('permisos', JSON.stringify(response.permisos));
               this.currentPermisosSubject.next(response.permisos);
             }
+            if (response.tenant_id !== undefined && response.tenant_id !== null) {
+              localStorage.setItem('tenant_id', response.tenant_id.toString());
+              this.currentTenantSubject.next(response.tenant_id);
+            }
           }
         }
       })
@@ -50,8 +57,10 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('role');
     localStorage.removeItem('permisos');
+    localStorage.removeItem('tenant_id');
     this.currentUserRoleSubject.next(null);
     this.currentPermisosSubject.next([]);
+    this.currentTenantSubject.next(null);
     this.router.navigate(['/login']);
   }
 
@@ -59,8 +68,17 @@ export class AuthService {
     return this.currentUserRoleSubject.value;
   }
 
+  getTenant(): number | null {
+    return this.currentTenantSubject.value;
+  }
+
   private getStoredRole(): string | null {
     return localStorage.getItem('role');
+  }
+
+  private getStoredTenant(): number | null {
+    const tenantStr = localStorage.getItem('tenant_id');
+    return tenantStr ? parseInt(tenantStr, 10) : null;
   }
 
   private getStoredPermisos(): string[] {

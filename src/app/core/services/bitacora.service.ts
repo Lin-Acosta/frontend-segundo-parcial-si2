@@ -9,9 +9,9 @@ export interface BitacoraEntry {
   descripcion: string;
   fecha: string;
   ip: string;
-  usuario_id: number;
-  usuario_correo: string;
-  usuario_rol: string;
+  usuario_id?: number | null;
+  usuario_correo?: string | null;
+  usuario_rol?: string | null;
 }
 
 @Injectable({

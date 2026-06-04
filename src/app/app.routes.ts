@@ -17,6 +17,9 @@ import { MantenimientosComponent } from './features/mantenimientos/mantenimiento
 import { MisIncidentes } from './features/mis-incidentes/mis-incidentes';
 import { PagoSuccess } from './features/pagos/pago-success/pago-success';
 import { ReportesComponent } from './features/reportes/reportes.component';
+import { TenantsList } from './features/saas/tenants-list/tenants-list';
+import { PlanesComponent } from './features/saas/planes/planes';
+import { DashboardKpiComponent } from './features/analytics/dashboard-kpi/dashboard-kpi';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -36,7 +39,10 @@ export const routes: Routes = [
       { path: 'solicitudes-pendientes', component: SolicitudesPendientesComponent },
       { path: 'mantenimientos', component: MantenimientosComponent },
       { path: 'mis-incidentes', component: MisIncidentes },
-      { path: 'reportes', component: ReportesComponent }
+      { path: 'reportes', component: ReportesComponent },
+      { path: 'saas/tenants', component: TenantsList, data: { requiredPermiso: 'Gestionar Tenants' } },
+      { path: 'saas/planes', component: PlanesComponent, data: { requiredPermiso: 'Gestionar Planes' } },
+      { path: 'analytics/kpis', component: DashboardKpiComponent, data: { requiredPermiso: 'Ver Analytics' } }
     ]
   },
   { path: 'pagos/success', component: PagoSuccess },

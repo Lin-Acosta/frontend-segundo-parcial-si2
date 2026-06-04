@@ -186,6 +186,45 @@ import { toSignal } from '@angular/core/rxjs-interop';
                 <p class="text-sm text-gray-500 mt-2">Gestionar tu información personal, contraseña y configuración de cuenta.</p>
               </div>
 
+              <!-- Card: SaaS Tenants -->
+              @if (hasPermiso('Gestionar Tenants') || role() === 'Administrador') {
+                <div routerLink="/dashboard/saas/tenants" class="bg-white border-2 border-dashed border-gray-200 rounded-xl p-6 hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer group">
+                  <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-lg font-bold text-gray-900 group-hover:text-blue-900">Organizaciones SaaS</h3>
+                  <p class="text-sm text-gray-500 mt-2">Gestionar tenants, clientes B2B y estado de suscripciones.</p>
+                </div>
+              }
+
+              <!-- Card: SaaS Planes -->
+              @if (hasPermiso('Gestionar Planes') || role() === 'Administrador') {
+                <div routerLink="/dashboard/saas/planes" class="bg-white border-2 border-dashed border-gray-200 rounded-xl p-6 hover:border-fuchsia-400 hover:bg-fuchsia-50 transition-colors cursor-pointer group">
+                  <div class="w-12 h-12 bg-fuchsia-100 text-fuchsia-600 rounded-lg flex items-center justify-center mb-4 group-hover:bg-fuchsia-600 group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-lg font-bold text-gray-900 group-hover:text-fuchsia-900">Planes SaaS</h3>
+                  <p class="text-sm text-gray-500 mt-2">Configurar precios, límites y características de los planes.</p>
+                </div>
+              }
+
+              <!-- Card: Analytics -->
+              @if (hasPermiso('Ver Analytics') || role() === 'Administrador') {
+                <div routerLink="/dashboard/analytics/kpis" class="bg-white border-2 border-dashed border-gray-200 rounded-xl p-6 hover:border-amber-400 hover:bg-amber-50 transition-colors cursor-pointer group">
+                  <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center mb-4 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-lg font-bold text-gray-900 group-hover:text-amber-900">Métricas & Analytics</h3>
+                  <p class="text-sm text-gray-500 mt-2">Tableros de control con KPI globales y por organización.</p>
+                </div>
+              }
+
               <!-- Card: Reportes — visible para Taller -->
               @if (role() === 'Taller') {
                 <div routerLink="/dashboard/reportes" class="bg-white border-2 border-dashed border-gray-200 rounded-xl p-6 hover:border-rose-400 hover:bg-rose-50 transition-colors cursor-pointer group">
