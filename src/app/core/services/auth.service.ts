@@ -4,6 +4,24 @@ import { BehaviorSubject, tap, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
+export interface TenantOption {
+  id: number;
+  nombre: string;
+  logo: string | null;
+  rol: string;
+}
+
+export interface LoginResponse {
+  access_token?: string;
+  token_type?: string;
+  role?: string;
+  permisos?: string[];
+  tenant_id?: number | null;
+  requires_tenant_selection: boolean;
+  temp_token?: string;
+  tenants?: TenantOption[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -14,39 +32,49 @@ export class AuthService {
 
   private currentUserRoleSubject = new BehaviorSubject<string | null>(this.getStoredRole());
   currentUserRole$ = this.currentUserRoleSubject.asObservable();
-  
+
   private currentPermisosSubject = new BehaviorSubject<string[]>(this.getStoredPermisos());
   currentPermisos$ = this.currentPermisosSubject.asObservable();
 
   private currentTenantSubject = new BehaviorSubject<number | null>(this.getStoredTenant());
   currentTenant$ = this.currentTenantSubject.asObservable();
 
-  login(correo: string, password: string): Observable<any> {
+  login(correo: string, password: string): Observable<LoginResponse> {
     const formData = new FormData();
-    formData.append('username', correo); // OAuth2 espera 'username', no 'Correo'
+    formData.append('username', correo);
     formData.append('password', password);
 
-    return this.http.post<any>(`${this.apiUrl}/login`, formData).pipe(
-      tap({
-        next: (response) => {
-          if (response.access_token) {
-            localStorage.setItem('access_token', response.access_token);
-            if (response.role) {
-              localStorage.setItem('role', response.role);
-              this.currentUserRoleSubject.next(response.role);
-            }
-            if (response.permisos) {
-              localStorage.setItem('permisos', JSON.stringify(response.permisos));
-              this.currentPermisosSubject.next(response.permisos);
-            }
-            if (response.tenant_id !== undefined && response.tenant_id !== null) {
-              localStorage.setItem('tenant_id', response.tenant_id.toString());
-              this.currentTenantSubject.next(response.tenant_id);
-            }
-          }
-        }
-      })
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, formData);
+  }
+
+  /** Segundo paso: confirma el tenant elegido y persiste el JWT final. */
+  selectTenant(tempToken: string, tenantId: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/select-tenant`, {
+      temp_token: tempToken,
+      tenant_id: tenantId
+    }).pipe(
+      tap(response => this.storeSession(response))
     );
+  }
+
+  /** Persiste el JWT y los datos de sesión en localStorage. */
+  storeSession(response: any) {
+    if (response.access_token) {
+      localStorage.setItem('access_token', response.access_token);
+    }
+    // role puede ser null para super admin — lo guardamos igual
+    const role = response.role ?? null;
+    localStorage.setItem('role', role ?? '');
+    this.currentUserRoleSubject.next(role);
+
+    const permisos = response.permisos ?? [];
+    localStorage.setItem('permisos', JSON.stringify(permisos));
+    this.currentPermisosSubject.next(permisos);
+
+    if (response.tenant_id !== undefined && response.tenant_id !== null) {
+      localStorage.setItem('tenant_id', response.tenant_id.toString());
+      this.currentTenantSubject.next(response.tenant_id);
+    }
   }
 
   registerTaller(data: any): Observable<any> {
@@ -65,7 +93,7 @@ export class AuthService {
   }
 
   getRole(): string | null {
-    return this.currentUserRoleSubject.value;
+    return this.currentUserRoleSubject.value || null;
   }
 
   getTenant(): number | null {
@@ -73,7 +101,7 @@ export class AuthService {
   }
 
   private getStoredRole(): string | null {
-    return localStorage.getItem('role');
+    return localStorage.getItem('role') || null;
   }
 
   private getStoredTenant(): number | null {
@@ -92,12 +120,8 @@ export class AuthService {
   }
 
   hasPermiso(permiso: string): boolean {
-    // El Administrador tiene acceso total a todas las funcionalidades
-    if (this.getRole() === 'Administrador') {
-      return true;
-    }
-    const permisos = this.currentPermisosSubject.value;
-    return permisos.includes(permiso);
+    if (this.getRole() === 'Administrador') return true;
+    return this.currentPermisosSubject.value.includes(permiso);
   }
 
   isLoggedIn(): boolean {

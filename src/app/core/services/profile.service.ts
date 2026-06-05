@@ -18,24 +18,22 @@ export interface TallerProfile {
 }
 
 export interface ConductorProfile {
-  CI: string;
-  Nombre: string;
-  Apellidos: string;
-  Fechanac: string | null;
 }
 
 export interface MecanicoProfile {
   id: number;
-  ci: number;
-  nombre: string;
-  apellidos: string;
   estado: string;
 }
 
 export interface ProfileData {
   Id: number;
   Correo: string;
+  Nombre: string | null;
+  Apellidos: string | null;
+  CI: string | null;
+  Fechanac: string | null;
   rol_nombre: string | null;
+  FotoPerfil: string | null;
   administrador: AdminProfile | null;
   taller: TallerProfile | null;
   conductor: ConductorProfile | null;
@@ -45,22 +43,27 @@ export interface ProfileData {
 export interface ProfileUpdatePayload {
   Correo?: string;
   Password?: string;
+  Nombre?: string;
+  Apellidos?: string;
+  CI?: string;
+  Fechanac?: string;
   admin_usuario?: string;
   taller_nombre?: string;
   taller_direccion?: string;
   taller_coordenadas?: string;
   taller_cap?: number;
   taller_capmax?: number;
-  conductor_ci?: string;
-  conductor_nombre?: string;
-  conductor_apellidos?: string;
-  conductor_fechanac?: string;
   mecanico_estado?: string;
 }
 
 export interface UbicacionPayload {
   Coordenadas: string;
   Direccion?: string;
+}
+
+export interface PasswordChangePayload {
+  contrasena_actual: string;
+  nueva_contrasena: string;
 }
 
 @Injectable({
@@ -80,5 +83,22 @@ export class ProfileService {
 
   updateUbicacion(data: UbicacionPayload): Observable<ProfileData> {
     return this.http.put<ProfileData>(`${this.apiUrl}/me/ubicacion`, data);
+  }
+
+  /** Cambia la contraseña verificando la actual (PUT /profile/me/password) */
+  changePassword(data: PasswordChangePayload): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.apiUrl}/me/password`, data);
+  }
+
+  /** Sube una foto de perfil (POST /profile/me/avatar) */
+  uploadAvatar(file: File): Observable<ProfileData> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ProfileData>(`${this.apiUrl}/me/avatar`, formData);
+  }
+
+  /** Elimina la cuenta del usuario actual (DELETE /profile/me) */
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/me`);
   }
 }

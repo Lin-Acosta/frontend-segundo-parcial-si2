@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TenantService, PlanSaaS } from '../../core/services/tenant.service';
 
 /*
   PALETA B — tema oscuro uniforme (estilo Claude)
@@ -20,7 +22,7 @@ import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   styles: [`
     :host { display: block; }
 
@@ -145,6 +147,113 @@ import { RouterModule } from '@angular/router';
       margin: 0;
     }
 
+    /* Cards Planes */
+    .p-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto 4rem;
+      padding: 0 1.5rem;
+      align-items: stretch;
+    }
+
+    .p-card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .p-card:hover { border-color: rgba(37,99,235,0.4); }
+    
+    .p-card.selected {
+      border-color: #2563eb;
+      border-width: 2px;
+      transform: translateY(-4px);
+    }
+
+    .p-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #9ca3af;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.07);
+      letter-spacing: 0.05em;
+    }
+    .p-card.selected .p-badge { border-color: #2563eb; color: #2563eb; }
+    .p-plan-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.3rem; color: white; }
+    .p-plan-sub { font-size: 0.85rem; color: #9ca3af; margin-bottom: 1.5rem; }
+    
+    .p-price-container { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .p-price-dot { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%); }
+    .p-price { font-size: 1.8rem; font-weight: 800; color: white; }
+    .p-price span { font-size: 1rem; color: #9ca3af; font-weight: 500; }
+
+    .p-features { list-style: none; padding: 0; margin: 0 0 2rem; flex: 1; }
+    .p-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .p-check { color: #2563eb; flex-shrink: 0; width: 18px; height: 18px; }
+
+    .p-custom-inputs {
+      background: rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .p-custom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+    .p-custom-row:last-child { margin-bottom: 0; }
+    .p-custom-label { font-size: 0.8rem; color: #9ca3af; font-weight: 600; }
+    .p-input-mini {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: white;
+      width: 60px;
+      padding: 0.3rem;
+      text-align: center;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .p-input-mini:focus { outline: none; border-color: #2563eb; }
+
+    .p-card-btn {
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      border: 1px solid #2563eb;
+    }
+    .p-card-btn.solid { background: #2563eb; color: white; }
+    .p-card-btn.solid:hover { background: #1d4ed8; border-color: #1d4ed8; }
+    .p-card-btn.outline { background: transparent; color: #60a5fa; border-color: rgba(37,99,235,0.4); }
+    .p-card-btn.outline:hover { background: rgba(37,99,235,0.1); border-color: #2563eb; }
+
     @media (max-width: 768px) {
       .nav-center { display: none !important; }
       .stat-div   { display: none; }
@@ -193,9 +302,9 @@ import { RouterModule } from '@angular/router';
         <!-- Right -->
         <div style="display:flex; align-items:center; gap:0.8rem; flex-shrink:0;">
           <a routerLink="/login" class="nav-link">Iniciar sesión</a>
-          <a routerLink="/registro-taller" class="btn-primary"
+          <a routerLink="/registro" class="btn-primary"
              style="padding:0.5rem 1.1rem; font-size:0.83rem; border-radius:8px;">
-            Registrar taller
+            Registrar
           </a>
         </div>
       </div>
@@ -245,9 +354,9 @@ import { RouterModule } from '@angular/router';
         <!-- CTAs -->
         <div style="display:flex; flex-wrap:wrap; gap:0.85rem;
                     justify-content:center; margin-bottom:5rem;">
-          <a routerLink="/registro-taller" class="btn-primary"
+          <a routerLink="/registro" class="btn-primary"
              style="padding:0.82rem 1.9rem; font-size:0.95rem; border-radius:10px;">
-            Registrar mi taller
+            Registrar
           </a>
           <a routerLink="/login" class="btn-outline"
              style="padding:0.82rem 1.9rem; font-size:0.95rem; border-radius:10px;">
@@ -612,6 +721,89 @@ import { RouterModule } from '@angular/router';
       </div>
     </section>
 
+    <!-- ══════════ PLANES ══════════ -->
+    <section id="planes" style="padding:5.5rem 1.5rem; background: #0f172a;">
+      <div style="max-width:1200px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:3.5rem;">
+          <p class="section-label">Planes de Suscripción</p>
+          <h2 class="section-title">Elige el plan ideal para tu red de talleres</h2>
+        </div>
+
+        @if (isLoadingPlanes) {
+          <div style="text-align:center; padding:3rem; color:#9ca3af;">Cargando planes...</div>
+        } @else {
+          <div class="p-grid">
+            @for (plan of planes; track plan.Id) {
+              
+              <div class="p-card" [class.selected]="selectedPlanId === plan.Id">
+                @if (selectedPlanId === plan.Id) {
+                  <div class="p-badge">SELECCIONADO</div>
+                }
+                
+                <div class="p-plan-name">Plan {{ plan.Nombre }}</div>
+                <div class="p-plan-sub">Para hasta {{ getDisplayUsuarios(plan) }} usuarios</div>
+                
+                <div class="p-price-container">
+                  <div class="p-price-dot"></div>
+                  <div class="p-price">
+                    \${{ getCustomPrice(plan) | number:'1.2-2' }}<span>/mes</span>
+                  </div>
+                </div>
+
+                <ul class="p-features">
+                  <li>
+                    <svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Módulo completo de Despacho e IA</span>
+                  </li>
+                  <li>
+                    <svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Hasta {{ getDisplayUsuarios(plan) }} usuarios activos</span>
+                  </li>
+                  <li>
+                    <svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Hasta {{ getDisplayIncidentes(plan) }} incidentes/mes</span>
+                  </li>
+                  <li>
+                    <svg class="p-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Soporte técnico y actualizaciones</span>
+                  </li>
+                </ul>
+
+                @if (plan.Nombre === 'Premium' && selectedPlanId === plan.Id) {
+                  <form [formGroup]="extraForm" class="p-custom-inputs" style="margin-top:1rem;">
+                    <div style="font-size:0.75rem; color:#9ca3af; margin-bottom:1rem; text-align:center;">
+                      ¿Tu red superará los límites? Añade extras ($2/usuario y $0.05/incidente)
+                    </div>
+                    <div class="p-custom-row">
+                      <span class="p-custom-label">+ Usuarios extra</span>
+                      <input type="number" formControlName="extra_usuarios" class="p-input-mini" min="0">
+                    </div>
+                    <div class="p-custom-row">
+                      <span class="p-custom-label">+ Incidentes extra</span>
+                      <input type="number" formControlName="extra_incidentes" class="p-input-mini" min="0" step="50">
+                    </div>
+                  </form>
+                }
+
+                @if (plan.Nombre === 'Premium' && selectedPlanId === plan.Id) {
+                  <button type="button" class="p-card-btn solid" (click)="continueToRegister(plan.Id)">
+                    Continuar al Registro
+                  </button>
+                } @else {
+                  <button type="button" 
+                          class="p-card-btn outline"
+                          (click)="selectPlan(plan)">
+                    Suscríbete a Plan {{ plan.Nombre }}
+                  </button>
+                }
+              </div>
+              
+            }
+          </div>
+        }
+      </div>
+    </section>
+
     <hr class="divider">
 
     <!-- ══════════ CTA FINAL ══════════ -->
@@ -627,9 +819,9 @@ import { RouterModule } from '@angular/router';
           sin compromisos. Empieza gratis y escala cuando lo necesites.
         </p>
         <div style="display:flex;flex-wrap:wrap;gap:0.85rem;justify-content:center;">
-          <a routerLink="/registro-taller" class="btn-primary"
+          <a routerLink="/registro" class="btn-primary"
              style="padding:0.85rem 2.1rem;font-size:0.95rem;border-radius:10px;">
-            Registrar mi taller gratis
+            Registrar
           </a>
           <a routerLink="/login" class="btn-outline"
              style="padding:0.85rem 2.1rem;font-size:0.95rem;border-radius:10px;">
@@ -681,4 +873,73 @@ import { RouterModule } from '@angular/router';
   </div>
   `
 })
-export class LandingComponent {}
+export class LandingComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private tenantService = inject(TenantService);
+  private router = inject(Router);
+
+  planes: PlanSaaS[] = [];
+  isLoadingPlanes = true;
+  selectedPlanId: number | null = null;
+  selectedPlanName: string | null = null;
+
+  extraForm: FormGroup = this.fb.group({
+    extra_usuarios: [0, [Validators.min(0)]],
+    extra_incidentes: [0, [Validators.min(0)]]
+  });
+
+  ngOnInit() {
+    this.tenantService.getPlanes().subscribe({
+      next: (planes) => {
+        this.planes = planes.sort((a, b) => a.PrecioMensual - b.PrecioMensual);
+        this.isLoadingPlanes = false;
+      },
+      error: () => {
+        this.isLoadingPlanes = false;
+      }
+    });
+  }
+
+  selectPlan(plan: PlanSaaS) {
+    if (plan.Nombre === 'Premium') {
+      this.selectedPlanId = plan.Id;
+      this.selectedPlanName = plan.Nombre;
+      this.extraForm.patchValue({ extra_usuarios: 0, extra_incidentes: 0 });
+    } else {
+      this.continueToRegister(plan.Id);
+    }
+  }
+
+  getCustomPrice(plan: PlanSaaS): number {
+    const base = plan.PrecioMensual / 100.0;
+    if (plan.Nombre === 'Premium' && this.selectedPlanId === plan.Id) {
+      const u = this.extraForm.get('extra_usuarios')?.value || 0;
+      const i = this.extraForm.get('extra_incidentes')?.value || 0;
+      return base + (u * 2) + (i * 0.05);
+    }
+    return base;
+  }
+
+  getDisplayUsuarios(plan: PlanSaaS): string | number {
+    if (plan.Nombre === 'Premium' && this.selectedPlanId === plan.Id) {
+      return plan.MaxUsuarios + (this.extraForm.get('extra_usuarios')?.value || 0);
+    }
+    return plan.MaxUsuarios === 999 ? 'ilimitados' : plan.MaxUsuarios;
+  }
+
+  getDisplayIncidentes(plan: PlanSaaS): string | number {
+    if (plan.Nombre === 'Premium' && this.selectedPlanId === plan.Id) {
+      return plan.MaxIncidentes + (this.extraForm.get('extra_incidentes')?.value || 0);
+    }
+    return plan.MaxIncidentes;
+  }
+
+  continueToRegister(planId: number) {
+    const queryParams: any = { plan_id: planId };
+    if (this.selectedPlanName === 'Premium' && this.selectedPlanId === planId) {
+      queryParams.extra_usuarios = this.extraForm.get('extra_usuarios')?.value || 0;
+      queryParams.extra_incidentes = this.extraForm.get('extra_incidentes')?.value || 0;
+    }
+    this.router.navigate(['/registro'], { queryParams });
+  }
+}

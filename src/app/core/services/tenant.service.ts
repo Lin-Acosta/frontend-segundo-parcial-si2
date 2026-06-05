@@ -12,6 +12,23 @@ export interface Tenant {
   CreatedAt?: string;
 }
 
+export interface TenantRegistrationRequest {
+  admin_correo: string;
+  admin_password: string;
+  admin_nombre?: string;
+  admin_apellidos?: string;
+  tenant_nombre: string;
+  plan_id: number;
+  extra_usuarios?: number;
+  extra_incidentes?: number;
+}
+
+export interface CheckoutSessionResponse {
+  checkout_url: string | null;
+  message: string;
+  tenant_id: number;
+}
+
 export interface PlanSaaS {
   Id: number;
   Nombre: string;
@@ -72,5 +89,10 @@ export class TenantService {
 
   createSuscripcion(data: Partial<Suscripcion>): Observable<Suscripcion> {
     return this.http.post<Suscripcion>(`${this.apiUrl}/suscripciones`, data);
+  }
+
+  // Registro de Tenant + Stripe
+  registerCheckout(data: TenantRegistrationRequest): Observable<CheckoutSessionResponse> {
+    return this.http.post<CheckoutSessionResponse>(`${this.apiUrl}/register-checkout`, data);
   }
 }
