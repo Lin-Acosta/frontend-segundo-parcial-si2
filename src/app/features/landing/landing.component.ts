@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TenantService, PlanSaaS } from '../../core/services/tenant.service';
+import { AuthService } from '../../core/services/auth.service';
 
 /*
   PALETA B — tema oscuro uniforme (estilo Claude)
@@ -301,11 +302,18 @@ import { TenantService, PlanSaaS } from '../../core/services/tenant.service';
 
         <!-- Right -->
         <div style="display:flex; align-items:center; gap:0.8rem; flex-shrink:0;">
-          <a routerLink="/login" class="nav-link">Iniciar sesión</a>
-          <a routerLink="/registro" class="btn-primary"
-             style="padding:0.5rem 1.1rem; font-size:0.83rem; border-radius:8px;">
-            Registrar
-          </a>
+          @if (isLoggedIn()) {
+            <a routerLink="/dashboard" class="btn-primary"
+               style="padding:0.5rem 1.1rem; font-size:0.83rem; border-radius:8px;">
+              Ir al Dashboard
+            </a>
+          } @else {
+            <a routerLink="/login" class="nav-link">Iniciar sesión</a>
+            <a routerLink="/registro" class="btn-primary"
+               style="padding:0.5rem 1.1rem; font-size:0.83rem; border-radius:8px;">
+              Registrar
+            </a>
+          }
         </div>
       </div>
     </nav>
@@ -819,14 +827,21 @@ import { TenantService, PlanSaaS } from '../../core/services/tenant.service';
           sin compromisos. Empieza gratis y escala cuando lo necesites.
         </p>
         <div style="display:flex;flex-wrap:wrap;gap:0.85rem;justify-content:center;">
-          <a routerLink="/registro" class="btn-primary"
-             style="padding:0.85rem 2.1rem;font-size:0.95rem;border-radius:10px;">
-            Registrar
-          </a>
-          <a routerLink="/login" class="btn-outline"
-             style="padding:0.85rem 2.1rem;font-size:0.95rem;border-radius:10px;">
-            Iniciar sesión
-          </a>
+          @if (isLoggedIn()) {
+            <a routerLink="/dashboard" class="btn-primary"
+               style="padding:0.85rem 2.1rem;font-size:0.95rem;border-radius:10px;">
+              Ir al Dashboard
+            </a>
+          } @else {
+            <a routerLink="/registro" class="btn-primary"
+               style="padding:0.85rem 2.1rem;font-size:0.95rem;border-radius:10px;">
+              Registrar
+            </a>
+            <a routerLink="/login" class="btn-outline"
+               style="padding:0.85rem 2.1rem;font-size:0.95rem;border-radius:10px;">
+              Iniciar sesión
+            </a>
+          }
         </div>
       </div>
     </section>
@@ -876,7 +891,12 @@ import { TenantService, PlanSaaS } from '../../core/services/tenant.service';
 export class LandingComponent implements OnInit {
   private fb = inject(FormBuilder);
   private tenantService = inject(TenantService);
+  private authService = inject(AuthService);
   private router = inject(Router);
+
+  isLoggedIn() {
+    return this.authService.isLoggedIn();
+  }
 
   planes: PlanSaaS[] = [];
   isLoadingPlanes = true;

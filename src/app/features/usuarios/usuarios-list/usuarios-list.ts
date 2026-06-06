@@ -137,6 +137,7 @@ export class UsuariosList implements OnInit {
   getRoleBadgeClass(rolNombre?: string): string {
     switch (rolNombre) {
       case 'Administrador': return 'role-badge role-badge-admin';
+      case 'Admin Tenant':  return 'role-badge role-badge-taller'; // same style as taller for now
       case 'Taller':        return 'role-badge role-badge-taller';
       case 'Conductor':     return 'role-badge role-badge-conductor';
       case 'Mecanico':      return 'role-badge role-badge-mecanico';
@@ -147,6 +148,7 @@ export class UsuariosList implements OnInit {
   getRoleDotColor(rolNombre?: string): string {
     switch (rolNombre) {
       case 'Administrador': return '#60a5fa';
+      case 'Admin Tenant':  return '#fbbf24';
       case 'Taller':        return '#fbbf24';
       case 'Conductor':     return '#4ade80';
       case 'Mecanico':      return '#c084fc';

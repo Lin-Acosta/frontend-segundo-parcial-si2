@@ -8,11 +8,18 @@ export interface Rol {
   Nombre: string;
 }
 
+export interface UsuarioTenantInfo {
+  tenant_id: number;
+  tenant_nombre: string;
+  rol_id: number;
+  rol_nombre: string;
+}
+
 export interface Usuario {
   Id: number;
   Correo: string;
-  IdRol: number;
-  rol?: Rol;
+  IdRol?: number;
+  memberships?: UsuarioTenantInfo[];
 }
 
 @Injectable({

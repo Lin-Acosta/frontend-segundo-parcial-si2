@@ -28,7 +28,7 @@
             {{ plan.Activo ? 'Activo' : 'Inactivo' }}
           </span>
         </div>
-        <p class="text-3xl font-extrabold text-gray-900 mb-6">${{ plan.PrecioMensual }}<span class="text-sm font-medium text-gray-500">/mes</span></p>
+        <p class="text-3xl font-extrabold text-gray-900 mb-6">${{ plan.PrecioMensual / 100 }}<span class="text-sm font-medium text-gray-500">/mes</span></p>
         
         <ul class="space-y-3 mb-6">
           <li class="flex items-start">

@@ -112,7 +112,7 @@ export class LoginComponent {
     }
 
     // Si es un rol del taller o mecanico web
-    const allowed: (string | null)[] = ['Taller', 'Mecanico'];
+    const allowed: (string | null)[] = ['Taller', 'Mecanico', 'Admin Tenant'];
     if (allowed.includes(role) || role === null || role === '') {
       this.router.navigate(['/dashboard']);
     } else {

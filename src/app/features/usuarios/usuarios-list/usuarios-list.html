@@ -57,11 +57,20 @@
                 </div>
               </td>
               <td>
-                <span class="role-badge" [class]="getRoleBadgeClass(user.rol?.Nombre)">
-                  <span style="width:5px;height:5px;border-radius:50%;display:inline-block;"
-                        [style.background]="getRoleDotColor(user.rol?.Nombre)"></span>
-                  {{ user.rol?.Nombre || 'Sin Rol' }}
-                </span>
+                <div style="display:flex;flex-direction:column;gap:0.3rem;">
+                  @for (m of user.memberships; track m.tenant_id) {
+                    <span class="role-badge" [class]="getRoleBadgeClass(m.rol_nombre)">
+                      <span style="width:5px;height:5px;border-radius:50%;display:inline-block;"
+                            [style.background]="getRoleDotColor(m.rol_nombre)"></span>
+                      {{ m.rol_nombre }} <span style="opacity:0.6;font-size:0.7rem;margin-left:4px;">(en {{ m.tenant_nombre }})</span>
+                    </span>
+                  }
+                  @if (!user.memberships?.length) {
+                    <span class="role-badge" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);">
+                      Sin Rol / Sin Tenant
+                    </span>
+                  }
+                </div>
               </td>
               <td style="text-align:center;">
                 <div style="display:inline-flex;gap:0.4rem;">

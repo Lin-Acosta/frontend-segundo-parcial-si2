@@ -76,6 +76,7 @@ export class PerfilComponent implements OnInit, AfterViewInit, OnDestroy {
   get roleBadgeBg(): string {
     switch (this.profile?.rol_nombre) {
       case 'Administrador': return 'rgba(37,99,235,0.15)';
+      case 'Admin Tenant':  return 'rgba(245,158,11,0.12)';
       case 'Taller':        return 'rgba(245,158,11,0.12)';
       case 'Conductor':     return 'rgba(34,197,94,0.12)';
       case 'Mecanico':      return 'rgba(168,85,247,0.12)';
@@ -86,6 +87,7 @@ export class PerfilComponent implements OnInit, AfterViewInit, OnDestroy {
   get roleBadgeBorder(): string {
     switch (this.profile?.rol_nombre) {
       case 'Administrador': return '1px solid rgba(37,99,235,0.25)';
+      case 'Admin Tenant':  return '1px solid rgba(245,158,11,0.2)';
       case 'Taller':        return '1px solid rgba(245,158,11,0.2)';
       case 'Conductor':     return '1px solid rgba(34,197,94,0.2)';
       case 'Mecanico':      return '1px solid rgba(168,85,247,0.2)';
@@ -96,6 +98,7 @@ export class PerfilComponent implements OnInit, AfterViewInit, OnDestroy {
   get roleBadgeColor(): string {
     switch (this.profile?.rol_nombre) {
       case 'Administrador': return '#60a5fa';
+      case 'Admin Tenant':  return '#fbbf24';
       case 'Taller':        return '#fbbf24';
       case 'Conductor':     return '#4ade80';
       case 'Mecanico':      return '#c084fc';

@@ -217,6 +217,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   getRolColor(rol?: string): string {
     switch (rol) {
       case 'Conductor': return '#2563EB';
+      case 'Admin Tenant':
       case 'Taller': return '#059669';
       case 'Mecánico': case 'Mecanico': return '#D97706';
       default: return '#6B7280';
@@ -226,6 +227,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   getRolBg(rol?: string): string {
     switch (rol) {
       case 'Conductor': return '#EFF6FF';
+      case 'Admin Tenant':
       case 'Taller': return '#ECFDF5';
       case 'Mecánico': case 'Mecanico': return '#FFFBEB';
       default: return '#F3F4F6';

@@ -29,6 +29,10 @@ export interface CheckoutSessionResponse {
   tenant_id: number;
 }
 
+export interface PortalSessionResponse {
+  portal_url: string;
+}
+
 export interface PlanSaaS {
   Id: number;
   Nombre: string;
@@ -94,5 +98,18 @@ export class TenantService {
   // Registro de Tenant + Stripe
   registerCheckout(data: TenantRegistrationRequest): Observable<CheckoutSessionResponse> {
     return this.http.post<CheckoutSessionResponse>(`${this.apiUrl}/register-checkout`, data);
+  }
+
+  // Gestión de Facturación desde el Dashboard
+  createCheckoutSession(planId: number): Observable<CheckoutSessionResponse> {
+    return this.http.post<CheckoutSessionResponse>(`${this.apiUrl}/suscripciones/checkout`, { plan_id: planId });
+  }
+
+  createPortalSession(): Observable<PortalSessionResponse> {
+    return this.http.post<PortalSessionResponse>(`${this.apiUrl}/suscripciones/portal`, {});
+  }
+
+  confirmarSuscripcionStripe(sessionId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/suscripciones/confirmar?session_id=${sessionId}`, {});
   }
 }

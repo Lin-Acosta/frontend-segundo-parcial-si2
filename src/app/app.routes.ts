@@ -20,6 +20,7 @@ import { PagoSuccess } from './features/pagos/pago-success/pago-success';
 import { ReportesComponent } from './features/reportes/reportes.component';
 import { TenantsList } from './features/saas/tenants-list/tenants-list';
 import { PlanesComponent } from './features/saas/planes/planes';
+import { MiSuscripcionComponent } from './features/saas/mi-suscripcion/mi-suscripcion';
 import { DashboardKpiComponent } from './features/analytics/dashboard-kpi/dashboard-kpi';
 
 export const routes: Routes = [
@@ -44,6 +45,7 @@ export const routes: Routes = [
       { path: 'reportes', component: ReportesComponent },
       { path: 'saas/tenants', component: TenantsList, data: { requiredPermiso: 'Gestionar Tenants' } },
       { path: 'saas/planes', component: PlanesComponent, data: { requiredPermiso: 'Gestionar Planes' } },
+      { path: 'saas/mi-suscripcion', component: MiSuscripcionComponent },
       { path: 'analytics/kpis', component: DashboardKpiComponent, data: { requiredPermiso: 'Ver Analytics' } }
     ]
   },
