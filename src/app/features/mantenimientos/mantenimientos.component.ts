@@ -5,6 +5,8 @@ import { IncidenteService, IncidenteDetalle } from '../../core/services/incident
 import { MecanicoService, Mecanico } from '../../core/services/mecanico.service';
 import { PagoService } from '../../core/services/pago.service';
 import { AuthService } from '../../core/services/auth.service';
+import { WebsocketService } from '../../core/services/websocket.service';
+import { Subscription } from 'rxjs';
 import { ChatComponent } from '../chat/chat.component';
 import * as L from 'leaflet';
 
@@ -19,6 +21,8 @@ export class MantenimientosComponent implements OnInit, OnDestroy, AfterViewChec
   private mecanicoService = inject(MecanicoService);
   private pagoService = inject(PagoService);
   private authService = inject(AuthService);
+  private websocketService = inject(WebsocketService);
+  private wsSubscription?: Subscription;
 
   mantenimientos: IncidenteDetalle[] = [];
   mecanicosDisponibles: Mecanico[] = [];
@@ -33,6 +37,7 @@ export class MantenimientosComponent implements OnInit, OnDestroy, AfterViewChec
   selectedIncidente: IncidenteDetalle | null = null;
   isDetalleModalOpen = false;
   private map: L.Map | null = null;
+  private mecanicoMarker: L.Marker | null = null;
   @ViewChild('mapContainer') mapContainer!: ElementRef;
 
   // Asignacion de multiples mecanicos temporal store
@@ -46,6 +51,30 @@ export class MantenimientosComponent implements OnInit, OnDestroy, AfterViewChec
     if (this.role === 'Taller') {
       this.cargarMecanicosDisponibles();
     }
+
+    this.websocketService.connect('talleres');
+    this.wsSubscription = this.websocketService.messages$.subscribe((msg) => {
+      if (msg && (msg.action === 'estado_actualizado' || msg.action === 'taller_asignado' || msg.action === 'cotizacion_aceptada')) {
+        this.cargarMantenimientos();
+      } else if (msg && msg.action === 'telemetria') {
+        if (this.isDetalleModalOpen && this.selectedIncidente?.id === msg.incidente_id && this.map) {
+          if (this.mecanicoMarker) {
+            this.mecanicoMarker.setLatLng([msg.lat, msg.lng]);
+          } else {
+            const greenIcon = L.icon({
+              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              shadowSize: [41, 41]
+            });
+            this.mecanicoMarker = L.marker([msg.lat, msg.lng], {icon: greenIcon}).addTo(this.map)
+              .bindPopup('<b>Técnico en camino</b>');
+          }
+        }
+      }
+    });
   }
 
   ngAfterViewChecked(): void {
@@ -58,6 +87,10 @@ export class MantenimientosComponent implements OnInit, OnDestroy, AfterViewChec
     if (this.map) {
       this.map.remove();
     }
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
+    this.websocketService.disconnect();
   }
 
   cargarMantenimientos(): void {
@@ -161,6 +194,7 @@ export class MantenimientosComponent implements OnInit, OnDestroy, AfterViewChec
       this.map.remove();
       this.map = null;
     }
+    this.mecanicoMarker = null;
   }
 
   private initMap(incidente: IncidenteDetalle): void {

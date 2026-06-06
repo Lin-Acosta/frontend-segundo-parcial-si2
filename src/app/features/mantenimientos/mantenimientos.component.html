@@ -40,9 +40,9 @@
               <div class="flex justify-between items-start">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
                       [ngClass]="{
-                        'bg-blue-50 text-blue-700': m.estado === 'Asignado',
-                        'bg-purple-50 text-purple-700': m.estado === 'En Camino',
-                        'bg-green-50 text-green-700': m.estado === 'Resuelto'
+                        'bg-blue-50 text-blue-700': m.estado === 'taller asignado',
+                        'bg-purple-50 text-purple-700': m.estado === 'en camino',
+                        'bg-green-50 text-green-700': m.estado === 'finalizado'
                       }">
                   {{ m.estado }}
                 </span>
@@ -108,15 +108,15 @@
               }
 
               <!-- Actions (Todos) -->
-              @if (m.estado !== 'Resuelto' && m.estado !== 'Pagado') {
+              @if (m.estado !== 'finalizado' && m.estado !== 'finalizado') {
                 <div class="mt-auto pt-4 border-t border-gray-100 flex gap-2">
-                  @if (m.estado === 'Asignado') {
-                    <button (click)="cambiarEstado(m.id, 'En Camino')" [disabled]="isUpdating"
+                  @if (m.estado === 'taller asignado') {
+                    <button (click)="cambiarEstado(m.id, 'en camino')" [disabled]="isUpdating"
                             class="flex-1 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 py-2.5 rounded-xl font-bold text-sm transition-colors disabled:opacity-50">
                       Ir En Camino
                     </button>
                   }
-                  <button (click)="cambiarEstado(m.id, 'Resuelto')" [disabled]="isUpdating"
+                  <button (click)="cambiarEstado(m.id, 'finalizado')" [disabled]="isUpdating"
                           class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-50">
                     Resolver
                   </button>
@@ -124,7 +124,7 @@
               }
 
               <!-- Confirmación de Pago en Efectivo -->
-              @if (m.estado === 'Resuelto' && tienePagoPendiente(m)) {
+              @if (m.estado === 'finalizado' && tienePagoPendiente(m)) {
                 <div class="mt-auto pt-4 border-t border-amber-200 bg-amber-50 -mx-5 -mb-5 px-5 py-4 rounded-b-2xl">
                   <div class="flex items-center gap-2 mb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-amber-600">
@@ -149,7 +149,7 @@
               }
 
               <!-- Estado Pagado -->
-              @if (m.estado === 'Pagado') {
+              @if (m.estado === 'finalizado') {
                 <div class="mt-auto pt-4 border-t border-green-200 bg-green-50 -mx-5 -mb-5 px-5 py-4 rounded-b-2xl text-center">
                   <span class="inline-flex items-center gap-1.5 text-green-700 font-bold text-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">

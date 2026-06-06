@@ -2,7 +2,9 @@ import { Component, OnInit, OnDestroy, AfterViewChecked, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { IncidenteService, IncidenteDetalle } from '../../core/services/incidente.service';
 import { ProfileService } from '../../core/services/profile.service';
+import { WebsocketService } from '../../core/services/websocket.service';
 import { environment } from '../../../environments/environment';
+import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
 
 import { FormsModule } from '@angular/forms';
@@ -367,6 +369,8 @@ export class SolicitudesPendientesComponent implements OnInit, OnDestroy, AfterV
 
   private incidenteService = inject(IncidenteService);
   private profileService = inject(ProfileService);
+  private websocketService = inject(WebsocketService);
+  private wsSubscription?: Subscription;
 
   constructor() {
     // Fix Leaflet's default icon path issue
@@ -392,7 +396,16 @@ export class SolicitudesPendientesComponent implements OnInit, OnDestroy, AfterV
 
   ngOnInit() {
     // Load taller profile first, then solicitudes
-    this.loadTallerId(() => this.loadSolicitudes());
+    this.loadTallerId(() => {
+      this.loadSolicitudes();
+
+      this.websocketService.connect('talleres');
+      this.wsSubscription = this.websocketService.messages$.subscribe((msg) => {
+        if (msg && (msg.action === 'nuevo_incidente' || msg.action === 'estado_actualizado' || msg.action === 'nueva_solicitud_cotizacion')) {
+          this.loadSolicitudes();
+        }
+      });
+    });
   }
 
   ngAfterViewChecked() {
@@ -411,6 +424,10 @@ export class SolicitudesPendientesComponent implements OnInit, OnDestroy, AfterV
 
   ngOnDestroy() {
     this.destroyAllMaps();
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
+    this.websocketService.disconnect();
   }
 
   private destroyAllMaps() {

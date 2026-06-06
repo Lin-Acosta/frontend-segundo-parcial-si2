@@ -38,6 +38,7 @@ export interface ProfileData {
   taller: TallerProfile | null;
   conductor: ConductorProfile | null;
   mecanico: MecanicoProfile | null;
+  tenant_nombre?: string | null;
 }
 
 export interface ProfileUpdatePayload {
