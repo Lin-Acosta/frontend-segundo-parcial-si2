@@ -65,6 +65,10 @@ export class TenantService {
     return this.http.get<Tenant[]>(`${this.apiUrl}/tenants`);
   }
 
+  getPublicTenants(): Observable<Tenant[]> {
+    return this.http.get<Tenant[]>(`${this.apiUrl}/public-tenants`);
+  }
+
   createTenant(data: Partial<Tenant>): Observable<Tenant> {
     return this.http.post<Tenant>(`${this.apiUrl}/tenants`, data);
   }

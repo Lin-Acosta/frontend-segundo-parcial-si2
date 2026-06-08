@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TenantService, PlanSaaS } from '../../core/services/tenant.service';
+import { TenantService, PlanSaaS, Tenant } from '../../core/services/tenant.service';
 import { AuthService } from '../../core/services/auth.service';
 
 /*
@@ -511,11 +511,15 @@ import { AuthService } from '../../core/services/auth.service';
                      text-transform:uppercase; letter-spacing:0.07em;">
           Con la confianza de redes en toda la región
         </span>
-        <span style="font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.22);">Auxilio Norte</span>
-        <span style="font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.22);">Mecánicos Express</span>
-        <span style="font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.22);">TallerRed Bolivia</span>
-        <span style="font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.22);">AutoAsist Pro</span>
-        <span style="font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.22);">VialTech</span>
+        @if (isLoadingTenants) {
+          <span style="font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.22);">Cargando redes...</span>
+        } @else if (publicTenants.length > 0) {
+          @for (t of publicTenants; track t.Id) {
+            <span style="font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.22);">{{ t.Nombre }}</span>
+          }
+        } @else {
+          <span style="font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.22);">Sé la primera red en unirse</span>
+        }
       </div>
     </section>
     <hr class="divider">
@@ -903,6 +907,9 @@ export class LandingComponent implements OnInit {
   selectedPlanId: number | null = null;
   selectedPlanName: string | null = null;
 
+  publicTenants: Tenant[] = [];
+  isLoadingTenants = true;
+
   extraForm: FormGroup = this.fb.group({
     extra_usuarios: [0, [Validators.min(0)]],
     extra_incidentes: [0, [Validators.min(0)]]
@@ -916,6 +923,16 @@ export class LandingComponent implements OnInit {
       },
       error: () => {
         this.isLoadingPlanes = false;
+      }
+    });
+
+    this.tenantService.getPublicTenants().subscribe({
+      next: (tenants) => {
+        this.publicTenants = tenants;
+        this.isLoadingTenants = false;
+      },
+      error: () => {
+        this.isLoadingTenants = false;
       }
     });
   }

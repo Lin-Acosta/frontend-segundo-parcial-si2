@@ -282,6 +282,16 @@ import { FormsModule } from '@angular/forms';
               </div>
               
               <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Tiempo Estimado (Opcional)</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="tiempoEstimadoOferta" 
+                  placeholder="Ej: 2 horas, 1 día..."
+                  class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-semibold text-gray-700 mb-4"
+                >
+              </div>
+              
+              <div>
                 <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Mensaje o Detalle (Opcional)</label>
                 <textarea 
                   [(ngModel)]="mensajeOferta" 
@@ -358,6 +368,7 @@ export class SolicitudesPendientesComponent implements OnInit, OnDestroy, AfterV
   // Form cotización
   montoOferta: number | null = null;
   mensajeOferta: string = '';
+  tiempoEstimadoOferta: string = '';
 
   // Maps tracking
   private cardMaps: Map<number, L.Map> = new Map();
@@ -620,6 +631,7 @@ export class SolicitudesPendientesComponent implements OnInit, OnDestroy, AfterV
     this.isModalOpen = true;
     this.montoOferta = null;
     this.mensajeOferta = '';
+    this.tiempoEstimadoOferta = '';
   }
 
   closeModal() {
@@ -645,7 +657,7 @@ export class SolicitudesPendientesComponent implements OnInit, OnDestroy, AfterV
     }
 
     this.isAssigning = this.selectedIncidente.id;
-    this.incidenteService.ofrecerCotizacion(this.selectedIncidente.id, this.montoOferta, this.mensajeOferta).subscribe({
+    this.incidenteService.ofrecerCotizacion(this.selectedIncidente.id, this.montoOferta, this.mensajeOferta, this.tiempoEstimadoOferta).subscribe({
       next: () => {
         this.isAssigning = null;
         this.closeModal();

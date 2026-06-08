@@ -22,6 +22,7 @@ import { TenantsList } from './features/saas/tenants-list/tenants-list';
 import { PlanesComponent } from './features/saas/planes/planes';
 import { MiSuscripcionComponent } from './features/saas/mi-suscripcion/mi-suscripcion';
 import { DashboardKpiComponent } from './features/analytics/dashboard-kpi/dashboard-kpi';
+import { TalleresListComponent } from './features/talleres/talleres-list.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -46,6 +47,7 @@ export const routes: Routes = [
       { path: 'saas/tenants', component: TenantsList, data: { requiredPermiso: 'Gestionar Tenants' } },
       { path: 'saas/planes', component: PlanesComponent, data: { requiredPermiso: 'Gestionar Planes' } },
       { path: 'saas/mi-suscripcion', component: MiSuscripcionComponent },
+      { path: 'sucursales', component: TalleresListComponent, data: { requiredPermiso: 'Ver Usuarios' } },
       { path: 'analytics/kpis', component: DashboardKpiComponent, data: { requiredPermiso: 'Ver Analytics' } }
     ]
   },

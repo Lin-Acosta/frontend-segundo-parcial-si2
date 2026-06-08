@@ -35,6 +35,7 @@ export interface Cotizacion {
   id: number;
   monto?: number;
   mensaje?: string;
+  tiempo_estimado?: string;
   estado: string;
   fecha_creacion?: string;
   incidente_id: number;
@@ -96,8 +97,8 @@ export class IncidenteService {
     return this.http.post<Cotizacion>(`${this.apiUrl}/${incidenteId}/solicitar-cotizacion`, { taller_id: tallerId });
   }
 
-  ofrecerCotizacion(incidenteId: number, monto: number, mensaje?: string): Observable<Cotizacion> {
-    return this.http.post<Cotizacion>(`${this.apiUrl}/${incidenteId}/ofrecer-cotizacion`, { monto, mensaje });
+  ofrecerCotizacion(incidenteId: number, monto: number, mensaje?: string, tiempo_estimado?: string): Observable<Cotizacion> {
+    return this.http.post<Cotizacion>(`${this.apiUrl}/${incidenteId}/ofrecer-cotizacion`, { monto, mensaje, tiempo_estimado });
   }
 
   aceptarCotizacion(cotizacionId: number): Observable<IncidenteDetalle> {
