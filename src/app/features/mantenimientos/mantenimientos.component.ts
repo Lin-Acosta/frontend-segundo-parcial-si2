@@ -106,6 +106,7 @@ export class MantenimientosComponent implements OnInit, OnDestroy, AfterViewChec
         });
 
         this.isLoading = false;
+        this.checkTracking();
       },
       error: (err) => {
         console.error('Error al cargar mantenimientos:', err);
@@ -113,6 +114,64 @@ export class MantenimientosComponent implements OnInit, OnDestroy, AfterViewChec
         this.isLoading = false;
       }
     });
+  }
+
+  // --- LOCATION TRACKING FROM WEB ---
+  isTrackingLocation = false;
+  private geoWatchId: number | null = null;
+  private enCaminoIds: number[] = [];
+
+  checkTracking(): void {
+    this.enCaminoIds = this.mantenimientos
+      .filter(m => m.estado === 'en camino')
+      .map(m => m.id);
+
+    if (this.enCaminoIds.length > 0) {
+      this.iniciarTransmisionUbicacion();
+    } else {
+      this.detenerTransmisionUbicacion();
+    }
+  }
+
+  iniciarTransmisionUbicacion(): void {
+    if (this.geoWatchId !== null) return;
+
+    if (!navigator.geolocation) {
+      console.warn('Geolocalización no soportada por el navegador.');
+      return;
+    }
+
+    this.isTrackingLocation = true;
+    this.geoWatchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        for (const id of this.enCaminoIds) {
+          this.websocketService.sendMessage({
+            action: 'telemetria',
+            incidente_id: id,
+            lat: lat,
+            lng: lng
+          });
+        }
+      },
+      (error) => {
+        console.error('Error obteniendo ubicación (GPS Web):', error);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 10000
+      }
+    );
+  }
+
+  detenerTransmisionUbicacion(): void {
+    if (this.geoWatchId !== null) {
+      navigator.geolocation.clearWatch(this.geoWatchId);
+      this.geoWatchId = null;
+      this.isTrackingLocation = false;
+    }
   }
 
   cargarMecanicosDisponibles(): void {
@@ -166,6 +225,7 @@ export class MantenimientosComponent implements OnInit, OnDestroy, AfterViewChec
           this.mantenimientos[index] = incidenteActualizado;
         }
         this.isUpdating = false;
+        this.checkTracking();
       },
       error: (err) => {
         console.error('Error al actualizar estado:', err);

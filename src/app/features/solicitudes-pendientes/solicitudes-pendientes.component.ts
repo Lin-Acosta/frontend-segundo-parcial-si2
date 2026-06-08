@@ -8,11 +8,12 @@ import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
 
 import { FormsModule } from '@angular/forms';
+import { ChatComponent } from '../chat/chat.component';
 
 @Component({
   selector: 'app-solicitudes-pendientes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ChatComponent],
   template: `
     <div class="bg-gray-50 flex flex-col gap-6 p-4 md:p-8 min-h-full">
       <div class="bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:rounded-2xl border border-gray-100 flex-1 flex flex-col">
@@ -187,8 +188,16 @@ import { FormsModule } from '@angular/forms';
                       }
                     }
 
-                    <!-- Action: Ofrecer Cotización -->
-                    <div class="mt-5 pt-4 border-t border-gray-100 flex justify-end">
+                    <!-- Action: Ofrecer Cotización y Chat -->
+                    <div class="mt-5 pt-4 border-t border-gray-100 flex justify-end gap-3">
+                      <button 
+                        (click)="abrirChat(inc)"
+                        class="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 transform shadow-sm border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                        </svg>
+                        Negociar
+                      </button>
                       <button 
                         (click)="ofrecerCotizacion(inc)" 
                         [disabled]="isAssigning === inc.id || yaCotizado(inc)"
@@ -333,6 +342,11 @@ import { FormsModule } from '@angular/forms';
         <img [src]="lightboxUrl" alt="Evidencia" class="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain" (click)="$event.stopPropagation()">
       </div>
     }
+    
+    <!-- Componente de Chat -->
+    @if (incidenteChatSeleccionado) {
+      <app-chat [incidenteId]="incidenteChatSeleccionado" (close)="cerrarChat()"></app-chat>
+    }
   `,
   styles: [`
     @keyframes spin {
@@ -369,6 +383,9 @@ export class SolicitudesPendientesComponent implements OnInit, OnDestroy, AfterV
   montoOferta: number | null = null;
   mensajeOferta: string = '';
   tiempoEstimadoOferta: string = '';
+
+  // Chat
+  incidenteChatSeleccionado: number | null = null;
 
   // Maps tracking
   private cardMaps: Map<number, L.Map> = new Map();
@@ -643,6 +660,14 @@ export class SolicitudesPendientesComponent implements OnInit, OnDestroy, AfterV
       this.modalMap.remove();
       this.modalMap = null;
     }
+  }
+
+  abrirChat(inc: IncidenteDetalle) {
+    this.incidenteChatSeleccionado = inc.id;
+  }
+
+  cerrarChat() {
+    this.incidenteChatSeleccionado = null;
   }
 
   confirmarAsignacion() {
